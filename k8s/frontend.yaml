@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: frontend:dev
+        image: ghcr.io/hammertwo1/frontend:staging
         ports:
         - containerPort: 3000
         readinessProbe:
