@@ -2,6 +2,7 @@ name: CI/CD Pipeline
 permissions:
   contents: read
   packages: write
+  issues: write
 on:
   push:
     branches:
