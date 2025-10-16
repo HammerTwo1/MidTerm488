@@ -1,4 +1,4 @@
-# ---- Builder ----
+
 FROM python:3.11-slim AS build
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_CACHE_DIR=1
 WORKDIR /wheels
@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends build-essential
     && pip wheel --wheel-dir=/wheels -r requirements.txt \
     && apt-get purge -y build-essential && rm -rf /var/lib/apt/lists/*
 
-# ---- Runtime ----
 FROM python:3.11-slim
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
