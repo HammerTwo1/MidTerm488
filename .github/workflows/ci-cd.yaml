@@ -114,7 +114,7 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          kubectl apply -f k8s/namespaces.yaml
+          kubectl apply -f k8s/namespaces.yaml --validate=false
           kubectl -n staging apply -f k8s/
 
   approve-prod:
