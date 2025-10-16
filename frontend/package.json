@@ -1,0 +1,11 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Virtual Rave Techno Frontend - static site served via Nginx",
+  "scripts": {
+    "start": "echo 'Static frontend served by Nginx in Docker'",
+    "build": "echo 'No build step required for static HTML/CSS/JS'"
+  },
+  "author": "sam he",
+  "license": "MIT"
+}
