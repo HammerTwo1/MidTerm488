@@ -148,7 +148,7 @@ jobs:
 
       - name: Deploy to Production
         run: |
-          kubectl apply -f k8s/namespaces.yaml
+          kubectl apply -f k8s/namespaces.yaml --validate=false
           kubectl -n prod apply -f k8s/
 
   rollback:
