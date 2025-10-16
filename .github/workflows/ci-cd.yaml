@@ -112,11 +112,6 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-      - name: Deploy to Staging
-        run: |
-          kubectl apply -f k8s/namespaces.yaml --validate=false
-          kubectl -n staging apply -f k8s/
-
   approve-prod:
     runs-on: ubuntu-latest
     needs: deploy-staging
