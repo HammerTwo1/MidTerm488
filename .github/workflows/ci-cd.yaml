@@ -142,11 +142,6 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-      - name: Deploy to Production
-        run: |
-          kubectl apply -f k8s/namespaces.yaml --validate=false
-          kubectl -n prod apply -f k8s/
-
   rollback:
     if: failure()
     runs-on: ubuntu-latest
