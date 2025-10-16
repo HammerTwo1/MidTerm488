@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: product-api-sm
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: product-api
+  namespaceSelector:
+    matchNames:
+      - staging
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: order-api-sm
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: order-api
+  namespaceSelector:
+    matchNames:
+      - staging
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
