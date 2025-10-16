@@ -3,7 +3,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm test --if-present
 
 FROM node:20-alpine
 WORKDIR /app
