@@ -17,6 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
+        image: frontend:dev
         ports:
         - containerPort: 3000
         readinessProbe:
