@@ -86,9 +86,10 @@ jobs:
 
       - name: Build and Push Docker Images
         run: |
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           for service in frontend product-api order-api; do
-            docker build -t ghcr.io/${{ github.repository_owner }}/${service}:staging -f ${service}/Dockerfile ${service}
-            docker push ghcr.io/${{ github.repository_owner }}/${service}:staging
+            docker build -t ghcr.io/${OWNER_LC}/${service}:staging -f ${service}/Dockerfile ${service}
+            docker push ghcr.io/${OWNER_LC}/${service}:staging
           done
 
 
