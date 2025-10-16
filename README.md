@@ -14,10 +14,7 @@ Includes:
 ---
 
 Each service runs independently in its own container and is exposed internally via Kubernetes `ClusterIP` Services.
-
 ---
----
-
 ## Local Development
 
 ### **1️ Run Product API locally**
@@ -146,3 +143,4 @@ Login: `admin / admin`
 - Images built via multi-stage for minimal surface area  
 - Gunicorn used for Python production server  
 - Non-root containers and read-only file systems recommended  
+
