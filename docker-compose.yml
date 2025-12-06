@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  product-api:
+    build: ./product-api
+    container_name: product-api
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    networks:
+      - techcommerce-net
+
+  order-api:
+    build: ./order-api
+    container_name: order-api
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+    networks:
+      - techcommerce-net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # These let your frontend talk to the APIs via Docker network DNS
+      - API_BASE_URL=http://product-api:5000
+      - ORDER_API_URL=http://order-api:4000
+      - PORT=3000
+    depends_on:
+      - product-api
+      - order-api
+    networks:
+      - techcommerce-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - product-api
+      - order-api
+    networks:
+      - techcommerce-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - techcommerce-net
+
+networks:
+  techcommerce-net:
+    driver: bridge
