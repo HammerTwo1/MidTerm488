@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "product-api"
+    static_configs:
+      - targets: ["product-api:5000"]
+
+  - job_name: "order-api"
+    static_configs:
+      - targets: ["order-api:4000"]
