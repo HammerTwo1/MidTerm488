@@ -1,0 +1,13 @@
+{
+  "name": "order-api",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "prom-client": "^15.0.0"
+  }
+}
