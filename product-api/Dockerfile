@@ -1,20 +1,33 @@
-FROM python:3.11-slim AS build
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_CACHE_DIR=1
-WORKDIR /wheels
-COPY requirements.txt .
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
-    && pip wheel --wheel-dir=/wheels -r requirements.txt \
-    && apt-get purge -y build-essential && rm -rf /var/lib/apt/lists/*
-
-FROM python:3.11-slim
+# --- Build stage ---
+FROM python:3.12-slim AS builder
 WORKDIR /app
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-COPY --from=build /wheels /wheels
+
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
-RUN pip install --no-index --find-links=/wheels -r requirements.txt
-COPY . .
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install -r requirements.txt
+
+COPY app.py .
+
+# --- Runtime stage ---
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV FLASK_ENV=production
+ENV PORT=5000
+
+COPY --from=builder /opt/venv /opt/venv
+COPY app.py .
+
 EXPOSE 5000
-HEALTHCHECK --interval=15s --timeout=3s --retries=3 CMD curl -fsS http://localhost:5000/healthz || exit 1
-CMD ["python","app.py"]
 
+# Run as non-root user
+RUN useradd -m appuser
+USER appuser
 
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
