@@ -1,16 +1,15 @@
-# TechCommerce Microservices – CI/CD, Kubernetes, Monitoring & Logging
+# COMP 448 Midterm 
 
 This repository contains a complete DevOps design for TechCommerce Inc. as it
 transitions from a monolith to microservices:
 
-- Node.js Frontend (port 3000)
+- Frontend (port 3000)
 - Python Flask Product API (port 5000)
-- Node.js Order API (port 4000)
+- Order API (port 4000)
 - Multi-stage Dockerfiles
 - Kubernetes manifests (Deployments, Services, ConfigMaps, Secrets, HPA, RBAC)
 - GitHub Actions CI/CD with staging + production, approvals, and rollback
-- Monitoring with Prometheus + Grafana + alerting
-- Centralized logging (Fluent Bit – Datadog-like)
+- Monitoring with Prometheus + Grafana
 
 ## 1. Architecture Overview
 
@@ -28,7 +27,6 @@ All services expose Prometheus metrics and health endpoints. They run in the
 - Smaller images via multi-stage builds.
 - Builder stages contain compilers and dev tools.
 - Runtime stages are slim and non-root (`node`, `appuser`).
-- Product API uses Gunicorn in the container.
 
 ## 3. Kubernetes Design
 
@@ -73,43 +71,7 @@ This follows least-privilege best practices.
 
 Assumes `kube-prometheus-stack` (Prometheus Operator) deployed in `monitoring`.
 
-### ServiceMonitors
-
-- `product-api-sm` and `order-api-sm` tell Prometheus to scrape:
-  - `product-api` and `order-api` services on port `http` at `/metrics`.
-
-### Alerting Rules
-
-1. **Pod Restarts > 3 in 10 minutes**  
-   Detects crash loops and instability.
-
-2. **API Response Time > 2 seconds for 5 minutes**  
-   Uses `http_server_request_duration_seconds` with `histogram_quantile(0.95, ...)`.
-
-3. **Error Rate > 5% for 5 minutes**  
-   5xx rate / total rate > 0.05.
-
-4. **Disk Usage > 85%**  
-   Uses `node_filesystem_*` metrics to avoid running out of space.
-
-### Alertmanager
-
-- Routes alerts to `oncall@techcommerce.example`.
-- Easily extended with Slack, PagerDuty, etc.
-
-## 7. Logging (Fluent Bit / Datadog-like)
-
-- Namespace: `logging`.
-- Fluent Bit DaemonSet:
-  - Tails `/var/log/containers/*.log`.
-  - Enriches with Kubernetes metadata.
-  - Sends via HTTP output to `logging-backend.logging.svc.cluster.local:3100`.
-- Can be pointed to:
-  - Loki, Elasticsearch, or Datadog (using their HTTP intake and API key).
-
-Centralized logging enables correlation with metrics and easier debugging.
-
-## 8. CI/CD Pipeline (GitHub Actions)
+## 7. CI/CD Pipeline (GitHub Actions)
 
 ### Stages
 
@@ -143,19 +105,14 @@ Centralized logging enables correlation with metrics and easier debugging.
    - `rollback_production` job:
      - `kubectl rollout undo deployment/<name> -n techcommerce`.
 
-### Manual Approval
 
-Configure GitHub **Environment** `production` with required reviewers.
-`deploy_production` will pause waiting for approval.
-
-## 9. Security Best Practices
+## 8. Security Best Practices
 
 - Non-root containers.
 - Minimal images (`alpine`, `slim`).
 - Secrets in Kubernetes Secrets (never hard-coded).
-- Potential integration with external secret managers (Vault, AWS Secrets Manager).
 - RBAC-designed with least privilege.
-- TLS and Ingress with optional WAF in real production.
+- Manual Approval
 
 ## 10. Cost Optimization
 
@@ -235,17 +192,11 @@ Configure GitHub **Environment** `production` with required reviewers.
      kubectl apply -f monitoring/alertmanager-config.yaml
      ```
 
-3. **Logging**
-   ```bash
-   kubectl apply -f logging/fluent-bit-configmap.yaml
-   kubectl apply -f logging/fluent-bit-daemonset.yaml
-   ```
 
-4. **GitHub Actions**
+3. **GitHub Actions**
    - Add secrets:
      - `KUBE_CONFIG_STAGING`
      - `KUBE_CONFIG_PROD`
+     - `CR_PAT`
    - Configure `production` environment with required reviewers.
 
-This repo is ready to be pushed to GitHub and used as a starting point for a
-production-style CI/CD + Kubernetes setup for TechCommerce.
