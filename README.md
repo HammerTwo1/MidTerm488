@@ -71,6 +71,37 @@ This follows least-privilege best practices.
 
 Assumes `kube-prometheus-stack` (Prometheus Operator) deployed in `monitoring`.
 
+### Alerting Rules
+
+   1. **Pod Restarts > 3 in 10 minutes**  
+      Detects crash loops and instability.
+
+   2. **API Response Time > 2 seconds for 5 minutes**  
+      Uses `http_server_request_duration_seconds` with `histogram_quantile(0.95, ...)`.
+
+   3. **Error Rate > 5% for 5 minutes**  
+      5xx rate / total rate > 0.05.
+
+   4. **Disk Usage > 85%**  
+      Uses `node_filesystem_*` metrics to avoid running out of space.
+
+   ### Alertmanager
+
+   - Routes alerts to `youremail@gmail.com`.
+   - Easily extended with Slack, PagerDuty, etc.
+
+   ## 7. Logging (Fluent Bit / Datadog-like)
+
+   - Namespace: `logging`.
+   - Fluent Bit DaemonSet:
+   - Tails `/var/log/containers/*.log`.
+   - Enriches with Kubernetes metadata.
+   - Sends via HTTP output to `logging-backend.logging.svc.cluster.local:3100`.
+   - Can be pointed to:
+   - Loki, Elasticsearch, or Datadog (using their HTTP intake and API key).
+
+   Centralized logging enables correlation with metrics and easier debugging.
+
 ## 7. CI/CD Pipeline (GitHub Actions)
 
 ### Stages
@@ -191,7 +222,11 @@ Assumes `kube-prometheus-stack` (Prometheus Operator) deployed in `monitoring`.
      kubectl apply -f monitoring/alert-rules.yaml
      kubectl apply -f monitoring/alertmanager-config.yaml
      ```
-
+3. **Logging**
+      ```bash
+      kubectl apply -f logging/fluent-bit-configmap.yaml
+      kubectl apply -f logging/fluent-bit-daemonset.yaml
+      ```
 
 3. **GitHub Actions**
    - Add secrets:
