@@ -1,4 +1,4 @@
-# COMP 488 Midterm 
+# COMP 488 Final 
 
 This repository contains a complete DevOps design for TechCommerce Inc. as it
 transitions from a monolith to microservices:
