@@ -14,8 +14,8 @@ stringData:
 
       # SMTP settings (example: Gmail)
       smtp_smarthost: 'smtp.gmail.com:587'
-      smtp_from: 'nitro7755@gmail.com'
-      smtp_auth_username: 'nitro7755@gmail.com'
+      smtp_from: 'your.email@gmail.com'
+      smtp_auth_username: 'your.email@gmail.com'
       smtp_auth_password: /etc/alertmanager/smtp/smtp_auth_password
       smtp_require_tls: true
 
@@ -38,7 +38,7 @@ stringData:
     receivers:
       - name: 'email-me'
         email_configs:
-          - to: 'nitro7755@gmail.com'
+          - to: 'your.email@gmail.com'
             send_resolved: true
 
     inhibit_rules:
