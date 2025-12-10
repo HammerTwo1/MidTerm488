@@ -1,0 +1,66 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: techcommerce-rules
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: pod-restarts
+      rules:
+        - alert: HighPodRestarts
+          expr: increase(kube_pod_container_status_restarts_total[10m]) > 3
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High number of pod restarts"
+            description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} restarted more than 3 times in the last 10 minutes."
+
+    - name: api-latency
+      rules:
+        - alert: HighAPILatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le, service) (
+                rate(http_server_request_duration_seconds_bucket[5m])
+              )
+            ) > 2
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High API latency"
+            description: "95th percentile latency for {{ $labels.service }} > 2s for 5 minutes."
+
+    - name: error-rates
+      rules:
+        - alert: HighAPIErrorRate
+          expr: |
+            (
+              sum by (service) (rate(http_requests_total{status=~"5.."}[5m]))
+            /
+              sum by (service) (rate(http_requests_total[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High API error rate"
+            description: "5xx error rate for {{ $labels.service }} > 5% for 5 minutes."
+
+    - name: disk-usage
+      rules:
+        - alert: HighDiskUsage
+          expr: |
+            (node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} -
+             node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"})
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High disk usage"
+            description: "Disk usage on {{ $labels.instance }} is above 85%."
